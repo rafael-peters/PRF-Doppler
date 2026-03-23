@@ -1,120 +1,144 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PRF — Física do Doppler | Dr. Rafael Peters</title>
 <style>
+  /* ── LIGHT (original, preserved) ── */
   :root {
-    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #efefec;
-    --text: #1a1a18; --text2: #5a5a56; --text3: #8a8a84;
-    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
-    --blue: #185FA5; --blue-bg: #E6F1FB; --blue-text: #0C447C;
-    --green: #3B6D11; --green-bg: #EAF3DE; --green-dark: #639922;
-    --red: #A32D2D; --red-bg: #FCEBEB;
-    --amber: #633806; --amber-bg: #FAEEDA; --amber-mid: #BA7517;
-    --mono: 'Courier New', monospace;
+    --bg:#ffffff; --bg2:#f5f5f3; --bg3:#efefec;
+    --text:#1a1a18; --text2:#5a5a56; --text3:#8a8a84;
+    --border:rgba(0,0,0,0.12); --border2:rgba(0,0,0,0.22);
+    --blue:#185FA5; --blue-bg:#E6F1FB; --blue-text:#0C447C;
+    --green:#3B6D11; --green-bg:#EAF3DE; --green-dark:#639922;
+    --red:#A32D2D; --red-bg:#FCEBEB;
+    --amber:#633806; --amber-bg:#FAEEDA; --amber-mid:#BA7517;
+    --mono:'Courier New',monospace;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #181816; --bg2: #222220; --bg3: #2a2a28;
-      --text: #e8e8e0; --text2: #a0a098; --text3: #606058;
-      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
-      --blue-bg: #0c2a4a; --blue-text: #85B7EB;
-      --green-bg: #142808; --red-bg: #2a0a0a; --amber-bg: #2a1400;
-    }
+  /* ── DARK VIVID ── */
+  [data-theme="dark"] {
+    --bg:#060d1a; --bg2:#0d1828; --bg3:#101e30;
+    --text:#e4f0ff; --text2:#7eb8e0; --text3:#3a6080;
+    --border:rgba(77,166,255,0.15); --border2:rgba(77,166,255,0.3);
+    --blue:#4da6ff; --blue-bg:#06193a; --blue-text:#7dc8ff;
+    --green:#00e05a; --green-bg:#021a0d; --green-dark:#00ff66;
+    --red:#ff4d6a; --red-bg:#1a0010;
+    --amber:#ffb700; --amber-bg:#1a0f00; --amber-mid:#ff8c00;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-         background: var(--bg); color: var(--text); line-height: 1.5; }
-  .page { max-width: 900px; margin: 0 auto; padding: 32px 20px 48px; }
-  .header { margin-bottom: 28px; border-bottom: 1px solid var(--border); padding-bottom: 18px; }
-  .header h1 { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-  .header p  { font-size: 13px; color: var(--text2); }
-  .tag { display: inline-block; font-size: 11px; font-weight: 500;
-         padding: 2px 8px; border-radius: 10px; margin-left: 8px;
-         background: var(--blue-bg); color: var(--blue-text); }
-  .section-title { font-size: 13px; font-weight: 600; color: var(--text);
-                   margin: 24px 0 10px; letter-spacing: .01em; }
-  .formula-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-  .fbox { background: var(--bg2); border: 0.5px solid var(--border);
-          border-radius: 8px; padding: 10px 14px; font-size: 12px;
-          color: var(--text2); flex: 1; min-width: 170px; }
-  .fbox strong { display: block; font-family: var(--mono); font-size: 13px;
-                 font-weight: 600; color: var(--text); margin-bottom: 3px; }
-  .panels-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
-  @media(max-width:600px){ .panels-grid { grid-template-columns: 1fr; } }
-  .panel-wrap { border-radius: 10px; overflow: hidden;
-                border: 0.5px solid var(--border2); }
-  .panel-hdr { padding: 8px 11px; font-size: 11px; font-weight: 600; }
-  .hdr-high { background: var(--red-bg); color: var(--red); }
-  .hdr-ok   { background: var(--green-bg); color: var(--green); }
-  .hdr-low  { background: var(--amber-bg); color: var(--amber); }
-  .panel-foot { padding: 7px 11px; font-size: 10px; line-height: 1.45;
-                border-top: 0.5px solid var(--border); }
-  .foot-high { color: var(--red);   background: var(--red-bg);   }
-  .foot-ok   { color: var(--green); background: var(--green-bg); }
-  .foot-low  { color: var(--amber); background: var(--amber-bg); }
-  canvas { display: block; width: 100%; }
-  hr.div { border: none; border-top: 0.5px solid var(--border); margin: 20px 0; }
-  .ctrl-block { background: var(--bg2); border-radius: 10px;
-                padding: 16px 18px; margin-bottom: 18px;
-                border: 0.5px solid var(--border); }
-  .ctrl-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .ctrl-lbl { font-size: 12px; color: var(--text2); min-width: 110px; }
-  .ctrl-v { font-size: 13px; font-weight: 600; min-width: 76px;
-            font-family: var(--mono); color: var(--text); text-align: right; }
-  input[type=range] { flex: 1; accent-color: var(--blue); }
-  .cards4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-top: 12px; }
-  @media(max-width:500px){ .cards4 { grid-template-columns: repeat(2,1fr); } }
-  .mcard { background: var(--bg); border: 0.5px solid var(--border);
-           border-radius: 8px; padding: 10px 12px; }
-  .mcard-lbl { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
-  .mcard-val { font-size: 16px; font-weight: 600; color: var(--text);
-               font-family: var(--mono); }
-  .mcard-sub { font-size: 10px; color: var(--text2); margin-top: 3px; }
-  .stag { display: inline-block; font-size: 11px; font-weight: 600;
-          padding: 3px 10px; border-radius: 10px; }
-  .stag-ok   { background: var(--green-bg); color: var(--green); }
-  .stag-warn { background: var(--amber-bg); color: var(--amber); }
-  .stag-err  { background: var(--red-bg);   color: var(--red);   }
-  .vbar-wrap { margin-top: 16px; }
-  .vbar-lbl { font-size: 11px; color: var(--text2); margin-bottom: 5px; }
-  .vbar { position: relative; height: 30px; background: var(--bg3);
-          border-radius: 6px; overflow: hidden; border: 0.5px solid var(--border); }
-  .vbar-ok { position: absolute; top: 0; left: 0; height: 100%;
-             background: var(--green-bg); border-right: 2px solid var(--green-dark);
-             transition: width .2s; }
-  .vbar-marker { position: absolute; top: 0; height: 100%; width: 3px;
-                 border-radius: 2px; background: #E24B4A; transition: left .2s; }
-  .vbar-lbls { display: flex; justify-content: space-between;
-               font-size: 10px; color: var(--text3); margin-top: 3px; }
-  .alias-section { border: 0.5px solid var(--border2); border-radius: 10px;
-                   overflow: hidden; }
-  .alias-hdr { padding: 9px 13px; font-size: 12px; font-weight: 600;
-               border-bottom: 0.5px solid var(--border);
-               display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .alias-badge { font-size: 11px; font-weight: 600; padding: 3px 10px;
-                 border-radius: 10px; transition: all .2s; }
-  .alias-legend { display: flex; gap: 16px; flex-wrap: wrap;
-                  padding: 9px 13px; border-top: 0.5px solid var(--border); }
-  .leg-item { display: flex; align-items: center; gap: 6px;
-              font-size: 11px; color: var(--text2); }
-  .leg-swatch { width: 20px; height: 2.5px; border-radius: 1px; }
-  .footer { margin-top: 32px; padding-top: 16px;
-            border-top: 0.5px solid var(--border);
-            font-size: 11px; color: var(--text3); }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+       background:var(--bg);color:var(--text);line-height:1.5;transition:background .25s,color .2s}
+  .page{max-width:900px;margin:0 auto;padding:32px 20px 48px}
+  .header{margin-bottom:28px;border-bottom:1px solid var(--border);padding-bottom:18px;
+          display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+  .header-left h1{font-size:22px;font-weight:600;color:var(--text);margin-bottom:4px}
+  .header-left p{font-size:13px;color:var(--text2)}
+  .tag{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;
+       margin-left:8px;background:var(--blue-bg);color:var(--blue-text)}
+
+  /* ── Toggle button ── */
+  .theme-btn{display:flex;align-items:center;gap:8px;flex-shrink:0;cursor:pointer;
+             background:var(--bg2);border:0.5px solid var(--border2);border-radius:20px;
+             padding:7px 13px 7px 10px;font-size:12px;color:var(--text2);
+             transition:background .2s,border-color .2s,color .2s;
+             user-select:none;white-space:nowrap}
+  .theme-btn:hover{border-color:var(--blue);color:var(--text)}
+  .trk{position:relative;width:36px;height:20px;background:var(--bg3);
+       border:0.5px solid var(--border2);border-radius:10px;transition:background .25s,border-color .25s;flex-shrink:0}
+  [data-theme="dark"] .trk{background:var(--blue-bg)}
+  .knob{position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;
+        background:var(--text3);transition:transform .25s,background .25s}
+  [data-theme="dark"] .knob{transform:translateX(16px);background:var(--blue)}
+  .ico{width:15px;height:15px;flex-shrink:0;opacity:0.7}
+  .ico-moon{display:block} .ico-sun{display:none}
+  [data-theme="dark"] .ico-moon{display:none} [data-theme="dark"] .ico-sun{display:block}
+
+  .section-title{font-size:13px;font-weight:600;color:var(--text);margin:24px 0 10px;letter-spacing:.01em}
+  .formula-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+  .fbox{background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;
+        padding:10px 14px;font-size:12px;color:var(--text2);flex:1;min-width:170px;
+        transition:background .2s,border-color .2s}
+  .fbox strong{display:block;font-family:var(--mono);font-size:13px;font-weight:600;
+               color:var(--text);margin-bottom:3px}
+  .panels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+  @media(max-width:600px){.panels-grid{grid-template-columns:1fr}}
+  .panel-wrap{border-radius:10px;overflow:hidden;border:0.5px solid var(--border2);transition:border-color .2s}
+  .panel-hdr{padding:8px 11px;font-size:11px;font-weight:600;transition:background .2s,color .2s}
+  .hdr-high{background:var(--red-bg);color:var(--red)}
+  .hdr-ok{background:var(--green-bg);color:var(--green)}
+  .hdr-low{background:var(--amber-bg);color:var(--amber)}
+  .panel-foot{padding:7px 11px;font-size:10px;line-height:1.45;
+              border-top:0.5px solid var(--border);transition:background .2s,color .2s}
+  .foot-high{color:var(--red);background:var(--red-bg)}
+  .foot-ok{color:var(--green);background:var(--green-bg)}
+  .foot-low{color:var(--amber);background:var(--amber-bg)}
+  canvas{display:block;width:100%}
+  hr.div{border:none;border-top:0.5px solid var(--border);margin:20px 0}
+  .ctrl-block{background:var(--bg2);border-radius:10px;padding:16px 18px;
+              margin-bottom:18px;border:0.5px solid var(--border);transition:background .2s}
+  .ctrl-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .ctrl-lbl{font-size:12px;color:var(--text2);min-width:110px}
+  .ctrl-v{font-size:13px;font-weight:600;min-width:76px;font-family:var(--mono);
+          color:var(--text);text-align:right}
+  input[type=range]{flex:1;accent-color:var(--blue)}
+  .cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+  @media(max-width:500px){.cards4{grid-template-columns:repeat(2,1fr)}}
+  .mcard{background:var(--bg);border:0.5px solid var(--border);border-radius:8px;
+         padding:10px 12px;transition:background .2s,border-color .2s}
+  .mcard-lbl{font-size:10px;color:var(--text3);margin-bottom:4px}
+  .mcard-val{font-size:16px;font-weight:600;color:var(--text);font-family:var(--mono)}
+  .mcard-sub{font-size:10px;color:var(--text2);margin-top:3px}
+  .stag{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px}
+  .stag-ok{background:var(--green-bg);color:var(--green)}
+  .stag-warn{background:var(--amber-bg);color:var(--amber)}
+  .stag-err{background:var(--red-bg);color:var(--red)}
+  .vbar-wrap{margin-top:16px}
+  .vbar-lbl{font-size:11px;color:var(--text2);margin-bottom:5px}
+  .vbar{position:relative;height:30px;background:var(--bg3);border-radius:6px;
+        overflow:hidden;border:0.5px solid var(--border)}
+  .vbar-ok{position:absolute;top:0;left:0;height:100%;
+           background:var(--green-bg);border-right:2px solid var(--green-dark);transition:width .2s}
+  .vbar-marker{position:absolute;top:0;height:100%;width:3px;border-radius:2px;
+               background:var(--red);transition:left .2s}
+  .vbar-lbls{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:3px}
+  .alias-section{border:0.5px solid var(--border2);border-radius:10px;overflow:hidden;transition:border-color .2s}
+  .alias-hdr{padding:9px 13px;font-size:12px;font-weight:600;color:var(--text);
+             border-bottom:0.5px solid var(--border);
+             display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .alias-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:10px;transition:all .2s}
+  .alias-legend{display:flex;gap:16px;flex-wrap:wrap;padding:9px 13px;border-top:0.5px solid var(--border)}
+  .leg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+  .leg-swatch{width:20px;height:2.5px;border-radius:1px}
+  .footer{margin-top:32px;padding-top:16px;border-top:0.5px solid var(--border);
+          font-size:11px;color:var(--text3)}
 </style>
 </head>
 <body>
 <div class="page">
 
 <div class="header">
-  <h1>PRF — A Física do Ajuste Mais Crítico do Doppler
-    <span class="tag">Voluson E22</span>
-  </h1>
-  <p>Dr. Rafael Peters · Medicina Fetal, Ginecologia &amp; Ultrassonografia · RS
-     &nbsp;·&nbsp; Aula: Doppler em Ginecologia</p>
+  <div class="header-left">
+    <h1>PRF — A Física do Ajuste Mais Crítico do Doppler
+      <span class="tag">Voluson E22</span>
+    </h1>
+    <p>Dr. Rafael Peters · Medicina Fetal, Ginecologia &amp; Ultrassonografia · RS
+       &nbsp;·&nbsp; Aula: Doppler em Ginecologia</p>
+  </div>
+  <button class="theme-btn" onclick="toggleTheme()" title="Alternar tema">
+    <svg class="ico ico-moon" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7z"/>
+    </svg>
+    <svg class="ico ico-sun" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+      <circle cx="8" cy="8" r="3" fill="currentColor" stroke="none"/>
+      <line x1="8" y1="1" x2="8" y2="3"/><line x1="8" y1="13" x2="8" y2="15"/>
+      <line x1="1" y1="8" x2="3" y2="8"/><line x1="13" y1="8" x2="15" y2="8"/>
+      <line x1="3.1" y1="3.1" x2="4.5" y2="4.5"/><line x1="11.5" y1="11.5" x2="12.9" y2="12.9"/>
+      <line x1="12.9" y1="3.1" x2="11.5" y2="4.5"/><line x1="4.5" y1="11.5" x2="3.1" y2="12.9"/>
+    </svg>
+    <div class="trk"><div class="knob"></div></div>
+    <span id="theme-lbl">Modo escuro</span>
+  </button>
 </div>
 
 <div class="section-title">Equações fundamentais</div>
@@ -135,17 +159,16 @@
   <div class="panel-wrap">
     <div class="panel-hdr hdr-ok">PRF ideal — fluxo compatível</div>
     <canvas id="cv2" height="130"></canvas>
-    <div class="panel-foot foot-ok">Célula se move a distância ideal entre pulsos. Shift de frequência detectado corretamente. Cor e direção corretas. Diagnóstico preciso.</div>
+    <div class="panel-foot foot-ok">Célula se move a distância ideal entre pulsos. Shift de frequência detectado. Cor e direção corretas. Diagnóstico preciso.</div>
   </div>
   <div class="panel-wrap">
     <div class="panel-hdr hdr-low">PRF baixa — fluxo rápido (aliasing)</div>
     <canvas id="cv3" height="130"></canvas>
-    <div class="panel-foot foot-low">Célula move mais de meia fase entre pulsos. O sistema não consegue distinguir: sinal parece ir na direção oposta. Cor invertida. Mosaico.</div>
+    <div class="panel-foot foot-low">Célula move mais de meia fase entre pulsos. Sinal parece ir na direção oposta. Cor invertida. Mosaico.</div>
   </div>
 </div>
 
 <hr class="div">
-
 <div class="section-title">Simulador interativo de PRF</div>
 <div class="ctrl-block">
   <div class="ctrl-row">
@@ -165,11 +188,8 @@
     <div class="mcard"><div class="mcard-lbl">Status do sinal</div><div class="mcard-val" id="c-status">—</div><div class="mcard-sub" id="c-sub">—</div></div>
   </div>
   <div class="vbar-wrap">
-    <div class="vbar-lbl">Janela de velocidades — verde = detectável | marcador vermelho = velocidade atual</div>
-    <div class="vbar">
-      <div class="vbar-ok" id="vbar-ok"></div>
-      <div class="vbar-marker" id="vbar-mk"></div>
-    </div>
+    <div class="vbar-lbl">Janela de velocidades — verde = detectável | marcador = velocidade atual</div>
+    <div class="vbar"><div class="vbar-ok" id="vbar-ok"></div><div class="vbar-marker" id="vbar-mk"></div></div>
     <div class="vbar-lbls"><span>0</span><span id="vbar-mid">—</span><span>120 cm/s</span></div>
   </div>
 </div>
@@ -181,10 +201,10 @@
   </div>
   <canvas id="cv-alias" height="110"></canvas>
   <div class="alias-legend">
-    <div class="leg-item"><div class="leg-swatch" style="background:#185FA5"></div>Fluxo real</div>
-    <div class="leg-item"><div class="leg-swatch" style="background:#3B6D11"></div>Amostras Doppler (pulsos PRF)</div>
-    <div class="leg-item"><div class="leg-swatch" style="background:#E24B4A"></div>Sinal reconstruído — o que o aparelho "vê"</div>
-    <div class="leg-item" style="font-style:italic;color:var(--text3)">Aumente a velocidade até ultrapassar o V_max para ver o aliasing</div>
+    <div class="leg-item"><div class="leg-swatch" id="leg-real" style="background:#185FA5"></div>Fluxo real</div>
+    <div class="leg-item"><div class="leg-swatch" id="leg-sample" style="background:#639922"></div>Amostras Doppler (pulsos PRF)</div>
+    <div class="leg-item"><div class="leg-swatch" id="leg-alias" style="background:#E24B4A"></div>Sinal reconstruído — o que o aparelho "vê"</div>
+    <div class="leg-item" style="font-style:italic;color:var(--text3)">Aumente a velocidade além do V_max para ver o aliasing</div>
   </div>
 </div>
 
@@ -192,220 +212,205 @@
   Infográfico interativo · Doppler em Ginecologia: a ferramenta indispensável ·
   Dr. Rafael Peters · RS · 2025
 </div>
-
 </div>
 
 <script>
-const C_TISSUE = 154000;
-let tick = 0, aliasPhase = 0, currentVmax = 21, rafId = 0;
+const CT = 154000;
+let tick=0, aphase=0, cVmax=21, raf=0;
 
-const panelCfgs = [
-  {prf:10,  vspeed:0.35, scenario:'miss'},
-  {prf:4,   vspeed:2.2,  scenario:'ok'},
-  {prf:1.4, vspeed:7.5,  scenario:'alias'}
+const pcfg = [
+  {prf:10,  vs:.35, sc:'miss'},
+  {prf:4,   vs:2.2, sc:'ok'},
+  {prf:1.4, vs:7.5, sc:'alias'}
 ];
-const panelStates = panelCfgs.map((cfg,i) => ({
-  cvs: document.getElementById('cv'+(i+1)),
-  cfg, pulses:[], cells:[]
-}));
-panelStates.forEach(s => {
-  s.cells = [];
-  for(let j=0;j<7;j++) s.cells.push({x:100+Math.random()*80, y:65+(Math.random()-0.5)*18});
-});
+const pst = pcfg.map((c,i)=>({cvs:document.getElementById('cv'+(i+1)),cfg:c,pulses:[],cells:[]}));
+pst.forEach(s=>{s.cells=[];for(let j=0;j<7;j++)s.cells.push({x:100+Math.random()*80,y:65+(Math.random()-.5)*18});});
 
-function sizeCvs(cvs, H) {
-  const dpr = window.devicePixelRatio||1;
-  const W = cvs.parentElement.clientWidth||220;
-  if(cvs.width !== Math.round(W*dpr)) {
-    cvs.width=Math.round(W*dpr); cvs.height=Math.round(H*dpr);
-    cvs.style.width=W+'px'; cvs.style.height=H+'px';
+const D = ()=>document.documentElement.getAttribute('data-theme')==='dark';
+
+const tc = ()=>{
+  const d=D();
+  return {
+    bg:     d?'#060d1a':'#f9f9f7',
+    tissue: d?'#0d1828':'#f3f2ee',
+    vessel: d?'#060020':'#fff2f0',
+    wall:   d?'#1a3060':'#cccccc',
+    pBase:  d?'#185FA5':'#185FA5',
+    pFace:  d?'#2a6fd4':'#E6F1FB',
+    pulse:  d?'#4da6ff':'#185FA5',
+    miss:   d?'#334a66':'#888780',
+    cOk:    d?'#ff6b35':'#D85A30',
+    cAl:    d?'#ffb700':'#BA7517',
+    chkOk:  d?'#00e05a':'#639922',
+    chkAl:  d?'#ffb700':'#BA7517',
+    chkMi:  d?'#ff4d6a':'#A32D2D',
+    lbl:    d?'#3a6080':'#888888',
+    rWave:  d?'#4da6ff':'#185FA5',
+    sDot:   d?'#00ff66':'#639922',
+    aWave:  d?'#ff4d6a':'#E24B4A',
+    nyqL:   d?'rgba(255,77,106,.6)'  :'rgba(162,45,45,.5)',
+    velL:   d?'rgba(77,166,255,.7)'  :'rgba(24,95,165,.6)',
+    alT:    d?'rgba(255,77,106,.75)' :'rgba(162,45,45,.5)',
+    alBg:   d?'#060d1a':'#ffffff',
+  };
+};
+
+function sz(cvs,H){
+  const dpr=window.devicePixelRatio||1, W=cvs.parentElement.clientWidth||220;
+  if(cvs.width!==Math.round(W*dpr)){
+    cvs.width=Math.round(W*dpr);cvs.height=Math.round(H*dpr);
+    cvs.style.width=W+'px';cvs.style.height=H+'px';
     cvs.getContext('2d').scale(dpr,dpr);
   }
-  return {W,H};
+  return{W,H};
 }
 
-function drawPanel(s) {
-  const {W,H} = sizeCvs(s.cvs,130);
-  const ctx = s.cvs.getContext('2d');
-  const dark = matchMedia('(prefers-color-scheme:dark)').matches;
+function drawP(s){
+  const{W,H}=sz(s.cvs,130), ctx=s.cvs.getContext('2d'), c=tc();
   ctx.clearRect(0,0,W,H);
-  ctx.fillStyle=dark?'#1a1a18':'#f9f9f7'; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle=dark?'#222220':'#f3f2ee'; ctx.fillRect(46,0,W-46,H);
+  ctx.fillStyle=c.bg; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=c.tissue; ctx.fillRect(46,0,W-46,H);
   const vy=H/2, vr=20;
-  ctx.fillStyle=dark?'#2c1a1a':'#fff2f0'; ctx.fillRect(46,vy-vr,W-46,vr*2);
-  ctx.strokeStyle=dark?'#555':'#ccc'; ctx.lineWidth=0.5;
-  ctx.beginPath();
-  ctx.moveTo(46,vy-vr); ctx.lineTo(W,vy-vr);
-  ctx.moveTo(46,vy+vr); ctx.lineTo(W,vy+vr);
-  ctx.stroke();
-  ctx.fillStyle='#185FA5'; ctx.beginPath();
-  ctx.roundRect?ctx.roundRect(6,vy-26,36,52,4):ctx.rect(6,vy-26,36,52);
-  ctx.fill();
-  ctx.fillStyle='#E6F1FB'; ctx.beginPath();
-  ctx.roundRect?ctx.roundRect(9,vy-22,30,44,3):ctx.rect(9,vy-22,30,44);
-  ctx.fill();
-  ctx.fillStyle='#185FA5'; ctx.font='bold 9px sans-serif';
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('US',24,vy-5);
-  ctx.font='7px sans-serif'; ctx.fillText('probe',24,vy+5);
-  s.pulses.forEach(p => {
-    const alpha = Math.max(0,1-(p.x-46)/(W-46));
-    ctx.strokeStyle=`rgba(24,95,165,${alpha*0.7})`;
-    ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
-    ctx.beginPath(); ctx.moveTo(p.x,8); ctx.lineTo(p.x,H-8); ctx.stroke();
-    ctx.setLineDash([]);
+  ctx.fillStyle=c.vessel; ctx.fillRect(46,vy-vr,W-46,vr*2);
+  ctx.strokeStyle=c.wall; ctx.lineWidth=.5;
+  ctx.beginPath(); ctx.moveTo(46,vy-vr); ctx.lineTo(W,vy-vr);
+  ctx.moveTo(46,vy+vr); ctx.lineTo(W,vy+vr); ctx.stroke();
+  ctx.fillStyle=c.pBase;
+  ctx.roundRect?ctx.roundRect(6,vy-26,36,52,4):ctx.rect(6,vy-26,36,52); ctx.fill();
+  ctx.fillStyle=c.pFace;
+  ctx.roundRect?ctx.roundRect(9,vy-22,30,44,3):ctx.rect(9,vy-22,30,44); ctx.fill();
+  ctx.fillStyle=c.pBase; ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('US',24,vy-5); ctx.font='7px sans-serif'; ctx.fillText('probe',24,vy+5);
+  s.pulses.forEach(p=>{
+    const a=Math.max(0,1-(p.x-46)/(W-46));
+    const hex=Math.round(a*.75*255).toString(16).padStart(2,'0');
+    ctx.strokeStyle=c.pulse+hex; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(p.x,8); ctx.lineTo(p.x,H-8); ctx.stroke(); ctx.setLineDash([]);
   });
-  const cColor = s.cfg.scenario==='miss'?'#888780':s.cfg.scenario==='alias'?'#BA7517':'#D85A30';
-  s.cells.forEach(c => {
-    ctx.fillStyle=cColor; ctx.beginPath(); ctx.arc(c.x,c.y,4,0,Math.PI*2); ctx.fill();
-  });
+  const cc=s.cfg.sc==='miss'?c.miss:s.cfg.sc==='alias'?c.cAl:c.cOk;
+  s.cells.forEach(cell=>{ctx.fillStyle=cc; ctx.beginPath(); ctx.arc(cell.x,cell.y,4,0,Math.PI*2); ctx.fill();});
   const rx=W-28, ry=vy;
-  if(s.cfg.scenario==='ok') {
-    ctx.fillStyle='rgba(99,153,34,0.15)'; ctx.beginPath(); ctx.arc(rx,ry,14,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='#639922'; ctx.lineWidth=2.5;
+  if(s.cfg.sc==='ok'){
+    ctx.fillStyle=c.chkOk+'28'; ctx.beginPath(); ctx.arc(rx,ry,14,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=c.chkOk; ctx.lineWidth=2.5;
     ctx.beginPath(); ctx.moveTo(rx-7,ry); ctx.lineTo(rx-2,ry+5); ctx.lineTo(rx+8,ry-7); ctx.stroke();
-  } else if(s.cfg.scenario==='alias') {
-    ctx.fillStyle='rgba(186,117,23,0.15)'; ctx.beginPath(); ctx.arc(rx,ry,14,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='#BA7517'; ctx.lineWidth=2;
+  } else if(s.cfg.sc==='alias'){
+    ctx.fillStyle=c.chkAl+'28'; ctx.beginPath(); ctx.arc(rx,ry,14,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=c.chkAl; ctx.lineWidth=2;
     ctx.beginPath(); ctx.moveTo(rx+7,ry-5); ctx.lineTo(rx-5,ry-5);
     ctx.moveTo(rx-1,ry-9); ctx.lineTo(rx-5,ry-5); ctx.lineTo(rx-1,ry); ctx.stroke();
-    ctx.strokeStyle='rgba(186,117,23,0.3)'; ctx.lineWidth=1;
+    ctx.strokeStyle=c.chkAl+'55'; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(rx-6,ry+4); ctx.lineTo(rx+6,ry+4);
     ctx.moveTo(rx+2,ry); ctx.lineTo(rx+6,ry+4); ctx.lineTo(rx+2,ry+8); ctx.stroke();
   } else {
-    ctx.fillStyle='rgba(162,45,45,0.12)'; ctx.beginPath(); ctx.arc(rx,ry,14,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='#A32D2D'; ctx.lineWidth=2.5;
-    ctx.beginPath(); ctx.moveTo(rx-7,ry-7); ctx.lineTo(rx+7,ry+7);
-    ctx.moveTo(rx+7,ry-7); ctx.lineTo(rx-7,ry+7); ctx.stroke();
+    ctx.fillStyle=c.chkMi+'22'; ctx.beginPath(); ctx.arc(rx,ry,14,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=c.chkMi; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(rx-7,ry-7); ctx.lineTo(rx+7,ry+7); ctx.moveTo(rx+7,ry-7); ctx.lineTo(rx-7,ry+7); ctx.stroke();
   }
-  const dot=s.cfg.scenario==='ok'?'#639922':s.cfg.scenario==='alias'?'#BA7517':'#A32D2D';
-  const lbl=s.cfg.scenario==='ok'?'detectado':s.cfg.scenario==='alias'?'aliasing':'não detect.';
+  const dot=s.cfg.sc==='ok'?c.chkOk:s.cfg.sc==='alias'?c.chkAl:c.chkMi;
+  const lbl=s.cfg.sc==='ok'?'detectado':s.cfg.sc==='alias'?'aliasing':'não detect.';
   ctx.fillStyle=dot; ctx.beginPath(); ctx.arc(10,H-10,4,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle=dark?'#aaa':'#888'; ctx.font='9px sans-serif';
-  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText(lbl,18,H-10);
+  ctx.fillStyle=c.lbl; ctx.font='9px sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText(lbl,18,H-10);
 }
 
-function drawAliasCanvas(prf,vel,vmax) {
-  const cvs = document.getElementById('cv-alias');
-  const dpr = window.devicePixelRatio||1;
-  const W = cvs.parentElement.clientWidth||600;
-  if(cvs.width !== Math.round(W*dpr)) {
+function drawAlias(prf,vel,vmax){
+  const cvs=document.getElementById('cv-alias');
+  const dpr=window.devicePixelRatio||1, W=cvs.parentElement.clientWidth||600;
+  if(cvs.width!==Math.round(W*dpr)){
     cvs.width=Math.round(W*dpr); cvs.height=Math.round(110*dpr);
     cvs.style.width=W+'px'; cvs.style.height='110px';
     cvs.getContext('2d').scale(dpr,dpr);
   }
-  const ctx = cvs.getContext('2d');
-  const H=110;
-  const dark = matchMedia('(prefers-color-scheme:dark)').matches;
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle=dark?'#1a1a18':'#ffffff'; ctx.fillRect(0,0,W,H);
+  const ctx=cvs.getContext('2d'), H=110, c=tc();
+  ctx.clearRect(0,0,W,H); ctx.fillStyle=c.alBg; ctx.fillRect(0,0,W,H);
   const cy=H/2, amp=36;
-  aliasPhase += 0.025;
-  const isAliased = vel > vmax;
-  const isInvis = vel < vmax*0.08;
-  const cyclesPerScreen = 3+(vel/120)*8;
-  const omega = (cyclesPerScreen*Math.PI*2)/W;
-  ctx.strokeStyle='#185FA5'; ctx.lineWidth=isInvis?1:2; ctx.setLineDash([]);
-  ctx.globalAlpha=isInvis?0.35:1;
+  aphase+=.025;
+  const isA=vel>vmax, isI=vel<vmax*.08;
+  const cps=3+(vel/120)*8, om=(cps*Math.PI*2)/W;
+  ctx.strokeStyle=c.rWave; ctx.lineWidth=isI?1:2; ctx.setLineDash([]);
+  ctx.globalAlpha=isI?.3:1;
   ctx.beginPath();
-  for(let x=0;x<W;x++) {
-    const y=cy-Math.sin(x*omega+aliasPhase)*amp;
-    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  }
+  for(let x=0;x<W;x++){const y=cy-Math.sin(x*om+aphase)*amp; x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
   ctx.stroke(); ctx.globalAlpha=1;
-  const samplesPerScreen = Math.max(4, Math.round((prf/1500)*12+3));
-  const spc = W/samplesPerScreen;
-  for(let i=0;i<=samplesPerScreen;i++) {
-    const x=i*spc;
-    const y=cy-Math.sin(x*omega+aliasPhase)*amp;
-    ctx.strokeStyle='rgba(99,153,34,0.3)'; ctx.lineWidth=0.5;
+  const sps=Math.max(4,Math.round((prf/1500)*12+3)), sp=W/sps;
+  for(let i=0;i<=sps;i++){
+    const x=i*sp, y=cy-Math.sin(x*om+aphase)*amp;
+    ctx.strokeStyle=D()?'rgba(0,255,102,.22)':'rgba(99,153,34,.3)'; ctx.lineWidth=.5;
     ctx.beginPath(); ctx.moveTo(x,cy); ctx.lineTo(x,y); ctx.stroke();
-    ctx.fillStyle='#639922'; ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=c.sDot; ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2); ctx.fill();
   }
-  if(isAliased) {
-    const ratio = vel/vmax;
-    const wrappedCycles = cyclesPerScreen - Math.round(cyclesPerScreen/ratio)*(ratio-1);
-    const aliasOmega = (wrappedCycles*Math.PI*2)/W;
-    ctx.strokeStyle='#E24B4A'; ctx.lineWidth=2.5; ctx.setLineDash([6,3]);
+  if(isA){
+    const r=vel/vmax, wc=cps-Math.round(cps/r)*(r-1), ao=(wc*Math.PI*2)/W;
+    ctx.strokeStyle=c.aWave; ctx.lineWidth=2.5; ctx.setLineDash([6,3]);
     ctx.beginPath();
-    for(let x=0;x<W;x++) {
-      const y=cy-Math.sin(x*aliasOmega+aliasPhase)*amp*0.9;
-      x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-    }
+    for(let x=0;x<W;x++){const y=cy-Math.sin(x*ao+aphase)*amp*.9; x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
     ctx.stroke(); ctx.setLineDash([]);
   }
-  const nyqX = Math.min(W-60, Math.round((vmax/120)*(W-80)+20));
-  ctx.strokeStyle='rgba(162,45,45,0.5)'; ctx.lineWidth=1; ctx.setLineDash([5,4]);
-  ctx.beginPath(); ctx.moveTo(nyqX,8); ctx.lineTo(nyqX,H-8); ctx.stroke();
-  ctx.setLineDash([]);
-  const velX = Math.min(W-20, Math.round((vel/120)*(W-80)+20));
-  ctx.strokeStyle='rgba(24,95,165,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
-  ctx.beginPath(); ctx.moveTo(velX,8); ctx.lineTo(velX,H-8); ctx.stroke();
-  ctx.setLineDash([]);
+  const nqx=Math.min(W-60,Math.round((vmax/120)*(W-80)+20));
+  ctx.strokeStyle=c.nyqL; ctx.lineWidth=1; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(nqx,8); ctx.lineTo(nqx,H-8); ctx.stroke(); ctx.setLineDash([]);
+  const vlx=Math.min(W-20,Math.round((vel/120)*(W-80)+20));
+  ctx.strokeStyle=c.velL; ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(vlx,8); ctx.lineTo(vlx,H-8); ctx.stroke(); ctx.setLineDash([]);
   ctx.font='10px sans-serif'; ctx.textBaseline='top';
-  ctx.fillStyle='rgba(162,45,45,0.7)'; ctx.textAlign='center';
-  ctx.fillText('Nyquist',nyqX,9);
-  ctx.fillStyle='rgba(24,95,165,0.7)';
-  if(Math.abs(velX-nyqX)>40) ctx.fillText('vel.',velX,9);
-  if(isAliased) {
-    ctx.fillStyle='rgba(162,45,45,0.5)'; ctx.textAlign='start';
-    ctx.font='9px sans-serif'; ctx.fillText('vel. > Nyquist → aliasing',nyqX+4,H/2-18);
-  }
+  ctx.fillStyle=c.nyqL; ctx.textAlign='center'; ctx.fillText('Nyquist',nqx,9);
+  ctx.fillStyle=c.velL; if(Math.abs(vlx-nqx)>40) ctx.fillText('vel.',vlx,9);
+  if(isA){ctx.fillStyle=c.alT; ctx.textAlign='start'; ctx.font='9px sans-serif'; ctx.fillText('vel. > Nyquist → aliasing',nqx+4,H/2-18);}
+  document.getElementById('leg-real').style.background=c.rWave;
+  document.getElementById('leg-sample').style.background=c.sDot;
+  document.getElementById('leg-alias').style.background=c.aWave;
 }
 
-function calc() {
-  const prf = parseInt(document.getElementById('sl-prf').value);
-  const vel = parseInt(document.getElementById('sl-vel').value);
+function calc(){
+  const prf=parseInt(document.getElementById('sl-prf').value);
+  const vel=parseInt(document.getElementById('sl-vel').value);
   document.getElementById('lbl-prf').textContent=(prf/1000).toFixed(2)+' kHz';
   document.getElementById('lbl-vel').textContent=vel+' cm/s';
-  const pri=1/prf;
-  const priMs=(pri*1000).toFixed(2);
-  const dmax=Math.round(C_TISSUE*pri/2);
-  const vmax=Math.round(prf*0.030);
-  currentVmax=vmax;
+  const pri=1/prf, vmax=Math.round(prf*.03), dmax=Math.round(CT*pri/2);
+  cVmax=vmax;
   document.getElementById('c-vmax').textContent=vmax+' cm/s';
-  document.getElementById('c-pri').textContent=priMs+' ms';
+  document.getElementById('c-pri').textContent=(pri*1000).toFixed(2)+' ms';
   document.getElementById('c-dmax').textContent=(dmax>9999?'>99':dmax)+' cm';
   let tag,st,sub;
-  if(vel>vmax){tag='err';st='Aliasing';sub='Vel. > Nyquist → cor invertida';}
-  else if(vel<vmax*0.08){tag='warn';st='Invisível';sub='PRF alta demais → shift abaixo do limiar';}
-  else if(vel<vmax*0.20){tag='warn';st='Baixa sensib.';sub='PRF ligeiramente alta';}
-  else{tag='ok';st='Detectado';sub='Dentro do limite de Nyquist';}
+  if(vel>vmax)         {tag='err'; st='Aliasing';     sub='Vel. > Nyquist → cor invertida';}
+  else if(vel<vmax*.08){tag='warn';st='Invisível';    sub='PRF alta demais → shift abaixo do limiar';}
+  else if(vel<vmax*.20){tag='warn';st='Baixa sensib.';sub='PRF ligeiramente alta';}
+  else                 {tag='ok';  st='Detectado';    sub='Dentro do limite de Nyquist';}
   document.getElementById('c-status').innerHTML='<span class="stag stag-'+tag+'">'+st+'</span>';
   document.getElementById('c-sub').textContent=sub;
-  const pct=Math.min(100,(vmax/120)*100);
-  document.getElementById('vbar-ok').style.width=pct+'%';
+  document.getElementById('vbar-ok').style.width=Math.min(100,(vmax/120)*100)+'%';
   document.getElementById('vbar-mid').textContent=Math.round(vmax/2)+' cm/s';
-  const vpct=Math.min(98,(vel/120)*100);
-  document.getElementById('vbar-mk').style.left=vpct+'%';
-  const badge=document.getElementById('alias-badge');
-  if(vel>vmax){badge.textContent='ALIASING ATIVO — sinal invertido';badge.style.cssText='background:#FCEBEB;color:#A32D2D;';}
-  else if(vel<vmax*0.08){badge.textContent='Fluxo invisível — PRF muito alta';badge.style.cssText='background:#FAEEDA;color:#633806;';}
-  else{badge.textContent='Detecção correta — sem aliasing';badge.style.cssText='background:#EAF3DE;color:#3B6D11;';}
+  document.getElementById('vbar-mk').style.left=Math.min(98,(vel/120)*100)+'%';
+  const b=document.getElementById('alias-badge');
+  if(vel>vmax)         {b.textContent='ALIASING ATIVO — sinal invertido';b.style.cssText='background:var(--red-bg);color:var(--red);';}
+  else if(vel<vmax*.08){b.textContent='Fluxo invisível — PRF muito alta'; b.style.cssText='background:var(--amber-bg);color:var(--amber);';}
+  else                 {b.textContent='Detecção correta — sem aliasing';  b.style.cssText='background:var(--green-bg);color:var(--green);';}
 }
 
-function loop() {
+function toggleTheme(){
+  const h=document.documentElement;
+  const next=h.getAttribute('data-theme')==='light'?'dark':'light';
+  h.setAttribute('data-theme',next);
+  document.getElementById('theme-lbl').textContent=next==='dark'?'Modo claro':'Modo escuro';
+}
+
+function loop(){
   tick++;
   const prf=parseInt(document.getElementById('sl-prf').value||700);
   const vel=parseInt(document.getElementById('sl-vel').value||25);
-  panelStates.forEach(s => {
-    const {W}=sizeCvs(s.cvs,130);
-    const emit=Math.max(1,Math.round(60/s.cfg.prf));
-    if(tick%emit===0) s.pulses.push({x:46});
+  pst.forEach(s=>{
+    const{W}=sz(s.cvs,130);
+    const em=Math.max(1,Math.round(60/s.cfg.prf));
+    if(tick%em===0) s.pulses.push({x:46});
     s.pulses=s.pulses.map(p=>({x:p.x+2.5})).filter(p=>p.x<W);
-    s.cells=s.cells.map(c=>{
-      let nx=c.x+s.cfg.vspeed*0.3;
-      if(nx>W-22) nx=58+Math.random()*20;
-      return{x:nx,y:c.y};
-    });
-    drawPanel(s);
+    s.cells=s.cells.map(c=>{let nx=c.x+s.cfg.vs*.3; if(nx>W-22)nx=58+Math.random()*20; return{x:nx,y:c.y};});
+    drawP(s);
   });
-  drawAliasCanvas(prf,vel,currentVmax);
-  rafId=requestAnimationFrame(loop);
+  drawAlias(prf,vel,cVmax);
+  raf=requestAnimationFrame(loop);
 }
 
-calc();
-loop();
+calc(); loop();
 </script>
 </body>
 </html>
